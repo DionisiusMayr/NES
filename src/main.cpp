@@ -1,6 +1,7 @@
 #include <iostream>
 #include "Registers.cpp"
 #include "Memory.cpp"
+#include "Processor.cpp"
 
 using std::cout;
 using std::endl;
@@ -12,4 +13,8 @@ int main() {
     Memory mem(8096);
     mem.at[2] = 0xff;
     mem.print_mem_interval(1,5);
+    Processor proc;
+    proc.fetch();
+    proc.fetch();
+    proc.fetch();
 }

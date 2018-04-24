@@ -1,3 +1,6 @@
+#ifndef REGISTERS_CPP_
+#define REGISTERS_CPP_
+
 #include <iostream>
 #include "utility.cpp"
 
@@ -22,3 +25,5 @@ struct Registers {
         cout << "---------------------------------------------------" << endl;
     }
 };
+
+#endif

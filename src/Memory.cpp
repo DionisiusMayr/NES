@@ -1,3 +1,6 @@
+#ifndef MEMORY_CPP_
+#define MEMORY_CPP_
+
 #include <cstdio>
 #include <string.h>
 #include "utility.cpp"
@@ -12,6 +15,8 @@ struct Memory {
         memset(at, 0, sizeof(uint8_t) * size);
     }
 
+    // TODO: Overload [] operator.
+
     void print_mem_interval(int a, int b) const {
         printf("--------------------------\n");
         for (int i = a; i < b; ++i)
@@ -19,3 +24,5 @@ struct Memory {
         printf("--------------------------\n");
     }
 };
+
+#endif
