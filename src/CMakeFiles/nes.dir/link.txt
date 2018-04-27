@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -pedantic -Wextra   CMakeFiles/nes.dir/main.cpp.o  -o nes 

@@ -1,0 +1,1 @@
+/usr/bin/c++   -Wall -pedantic -Wextra   CMakeFiles/Test.dir/test.cpp.o  -o Test ../googletest-build/googlemock/gtest/libgtest.a -pthread 
