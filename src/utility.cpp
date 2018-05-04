@@ -3,6 +3,14 @@
 #include <cstdio>
 #include <string>
 
+#define CARRY 0
+#define ZERO 1
+#define IRQ 2
+#define DECIMAL 3
+#define BRK 4
+#define OVERFLOW 6
+#define NEGATIVE 7
+
 // From https://stackoverflow.com/questions/111928/is-there-a-printf-converter-to-print-in-binary-format
 #define BIN_PATT "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BIN(byte)  \

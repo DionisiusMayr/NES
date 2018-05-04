@@ -9,12 +9,7 @@ using std::endl;
 int main() {
     cout << "First commit" << endl;
     Registers regs;
-    regs.print_regs();
-    Memory mem(8096);
-    mem.at[2] = 0xff;
-    mem.print_mem_interval(1,5);
+    // regs.print_regs();
     Processor proc;
-    proc.fetch();
-    proc.fetch();
-    proc.fetch();
+    proc.exec_n_inst(3);
 }
