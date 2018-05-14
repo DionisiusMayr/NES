@@ -30,4 +30,11 @@ std::string dec_hex_bin(uint8_t value) {
     return std::string(formated_str);
 }
 
+std::string dec_hex_bin_16(uint16_t value) {
+    std::string ret = "Low:  " + dec_hex_bin(value) + "\n";
+    value = value >> 8;
+    ret += "High: " + dec_hex_bin(value) + "\n";
+    return ret;
+}
+
 #endif
