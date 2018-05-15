@@ -25,6 +25,10 @@ struct Instruction {
             case 0x8a:  // TXA
             case 0x9a:  // TXS
             case 0x98:  // TYA
+            case 0x48:  // PHA
+            case 0x08:  // PHP
+            case 0x68:  // PLA
+            case 0x28:  // PLP
                 return 1;
             case 0x69: case 0x65: case 0x75: case 0x61: case 0x71:  // ADC
             case 0x29: case 0x25: case 0x35: case 0x21: case 0x31:  // AND

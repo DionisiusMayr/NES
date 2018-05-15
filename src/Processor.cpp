@@ -224,11 +224,44 @@ private:
         }
     }
 
+    void stack_operations() {
+        int16_t addr;
+
+        switch (instr.opc) {
+            case 0x48:  // PHA
+                addr = ((uint16_t)0x0100) | r.s;
+                m.at[addr] = r.a;
+                --r.s;
+                break;
+            case 0x08:  // PHP
+                addr = ((uint16_t)0x0100) | r.s;
+                m.at[addr] = r.p.to_ulong();
+                --r.s;
+                break;
+            case 0x68:  // PLA
+                ++r.s;
+                addr = ((uint16_t)0x0100) | r.s;
+                r.a = m.at[addr];
+
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x28:  // PLP
+                ++r.s;
+                addr = ((uint16_t)0x0100) | r.s;
+                r.p = m.at[addr];
+                break;
+        }
+    }
+
     void execute() {
         uint8_t op1 = instr.byte1;
         uint8_t op2 = instr.byte2;
         uint8_t aux = 0;
         int16_t addr;
+
+        data_transfers();
+        stack_operations();
 
         switch (instr.opc) {
             int int_res;
