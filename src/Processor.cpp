@@ -254,22 +254,235 @@ private:
         }
     }
 
-    void execute() {
+    void inc_dec() {
         uint8_t op1 = instr.byte1;
         uint8_t op2 = instr.byte2;
-        uint8_t aux = 0;
+        uint8_t aux;
         int16_t addr;
 
-        data_transfers();
-        stack_operations();
+        switch (instr.opc) {
+            case 0xe6:  // INC oper
+                aux = ++m.at[op1];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xf6:  // INC oper,X
+                aux = ++m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xee:  // INC oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                aux = ++m.at[addr];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xfe:  // INC oper,X
+                addr = ((uint16_t)op1 << 8) | op2;
+                aux = ++m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xe8:  // INX
+                ++r.x;
+                r.p[NEGATIVE] = _sign(r.x);
+                r.p[ZERO]     = _zero(r.x);
+                break;
+            case 0xc8:  // INY
+                ++r.y;
+                r.p[NEGATIVE] = _sign(r.y);
+                r.p[ZERO]     = _zero(r.y);
+                break;
+
+            case 0xc6:  // DEC oper
+                aux = --m.at[op1];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xd6:  // DEC oper,X
+                aux = --m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xce:  // DEC oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                aux = --m.at[addr];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xde:  // DEC oper,X
+                addr = ((uint16_t)op1 << 8) | op2;
+                aux = --m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux);
+                break;
+            case 0xca:  // DEX
+                --r.x;
+                r.p[NEGATIVE] = _sign(r.x);
+                r.p[ZERO]     = _zero(r.x);
+                break;
+            case 0x88:  // DEY
+                --r.y;
+                r.p[NEGATIVE] = _sign(r.y);
+                r.p[ZERO]     = _zero(r.y);
+                break;
+        }
+    }
+
+    void logical() {
+        uint8_t op1 = instr.byte1;
+        uint8_t op2 = instr.byte2;
+        int16_t addr;
 
         switch (instr.opc) {
-            int int_res;
-            case 0x09:  // ORA #oper
-                r.a = r.a | op1;
+            /* AND */
+            case 0x29:  // AND #oper
+                r.a &= op1;
                 r.p[NEGATIVE] = _sign(r.a);
                 r.p[ZERO]     = _zero(r.a);
                 break;
+            case 0x25:  // AND oper
+                r.a &= m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x35:  // AND oper,X
+                r.a &= m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x2d:  // AND oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a &= m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x3d:  // AND oper,X
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a &= m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x39:  // AND oper,Y
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a &= m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x21:  // AND (oper,X)
+                r.a &= m.at[m.at[op1 + r.x]];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x31:  // AND (oper),Y
+                r.a &= m.at[m.at[op1] + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+
+            /* ORA */
+            case 0x09:  // ORA #oper
+                r.a |= op1;
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x05:  // ORA oper
+                r.a |= m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x15:  // ORA oper,X
+                r.a |= m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x01:  // ORA (oper,X)
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a |= m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x11:  // ORA (oper),Y
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a |= m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x0d:  // ORA oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a |= m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x1d:  // ORA oper,X
+                r.a |= m.at[m.at[op1 + r.x]];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x19:  // ORA oper,Y
+                r.a |= m.at[m.at[op1] + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+
+            /* EOR */
+            case 0x49:  // EOR #oper
+                r.a ^= op1;
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x45:  // EOR oper
+                r.a ^= m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x55:  // EOR oper,X
+                r.a ^= m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x4d:  // EOR oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a ^= m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x5d:  // EOR oper,X
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a ^= m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x59:  // EOR oper,Y
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a ^= m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x41:  // EOR (oper,X)
+                r.a ^= m.at[m.at[op1 + r.x]];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+            case 0x51:  // EOR (oper),Y
+                r.a ^= m.at[m.at[op1] + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
+                break;
+        }
+
+    }
+
+    void data_processing() {
+        uint8_t op1 = instr.byte1;
+            // ADC
+            // SBC
+            // CLC
+        inc_dec();
+        logical();
+
+        switch (instr.opc) {
+            int int_res;
             case 0x0a:  // ASL A
                 r.p[CARRY]    = r.a && 0x80;
                 r.a = r.a << 1;
@@ -278,16 +491,6 @@ private:
                 break;
             case 0x18:  // CLC
                 r.p[CARRY] = 0;
-                break;
-            case 0x29:  // AND #oper
-                r.a = r.a & op1;
-                r.p[NEGATIVE] = _sign(r.a);
-                r.p[ZERO]     = _zero(r.a);
-                break;
-            case 0x49:  // EOR #oper
-                r.a = r.a ^ op1;
-                r.p[NEGATIVE] = _sign(r.a);
-                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0x58:  // CLI
                 r.p[IRQ] = 0;
@@ -307,24 +510,15 @@ private:
             case 0xd8:  // CLD
                 r.p[DECIMAL] = 0;
                 break;
-            case 0xe6:  // INC oper
-                aux = ++m.at[op1];
-                r.p[NEGATIVE] = _sign(aux);
-                r.p[ZERO]     = _zero(aux);
-                break;
-            case 0xee:  // INC oper
-                break;
-            case 0xf6:  // INC oper,X
-                aux = ++m.at[op1 + r.x];
-                r.p[NEGATIVE] = _sign(aux);
-                r.p[ZERO]     = _zero(aux);
-                break;
-            case 0xfe:  // INC oper,X
-                addr = ((uint16_t)op1 << 8) | op2;
-                std::cout << dec_hex_bin_16(addr);
-
-                break;
         }
+    }
+
+    void execute() {
+
+        data_transfers();
+        stack_operations();
+        data_processing();
+
     }
 
     void read_binary_program(const char * filename) {
@@ -351,7 +545,7 @@ public:
         m.at[6] = 0x0a;
         // m.at[2] = 0x29;
         // m.at[3] = 0x00;
-        m.print_mem_interval(0,5);
+        // m.print_mem_interval(0,5);
     }
 
     void exec_n_inst(size_t const qty) {

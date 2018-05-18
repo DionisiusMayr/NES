@@ -29,12 +29,13 @@ struct Instruction {
             case 0x08:  // PHP
             case 0x68:  // PLA
             case 0x28:  // PLP
+            case 0xe8:  // INX
+            case 0xc8:  // INY
+            case 0xca:  // DEX
+            case 0x88:  // DEY
                 return 1;
             case 0x69: case 0x65: case 0x75: case 0x61: case 0x71:  // ADC
-            case 0x29: case 0x25: case 0x35: case 0x21: case 0x31:  // AND
             case 0x06: case 0x16:   // ASL
-            case 0x09: case 0x05: case 0x15: case 0x01: case 0x11:  // ORA
-            case 0x49: case 0x45: case 0x55: case 0x41: case 0x51:  // EOR
             case 0xe6: case 0xf6:   // INC
             case 0xa9: case 0xa5: case 0xb5: case 0xa1: case 0xb1:  // LDA
             case 0x85: case 0x95: case 0x81: case 0x91: // STA
@@ -42,14 +43,22 @@ struct Instruction {
             case 0xa0: case 0xa4: case 0xb4:    // LDY
             case 0x86: case 0x96:   // STX
             case 0x84: case 0x94:   // STY
+            case 0xc6: case 0xd6:   // DEC
+            case 0x29: case 0x25: case 0x35: case 0x21: case 0x31:  // AND
+            case 0x09: case 0x05: case 0x15: case 0x01: case 0x11:  // ORA
+            case 0x49: case 0x45: case 0x55: case 0x41: case 0x51:  // EOR
                 return 2;
-            case 0xee: case 0xff:   // INC
             case 0xad: case 0xbd: case 0xb9:    // LDA
             case 0x8d: case 0x9d: case 0x99:    // STA
             case 0xae: case 0xbe:   // LDX
             case 0xac: case 0xbc:   // LDY
             case 0x8e:  // STX
             case 0x8c:  // STY
+            case 0xee: case 0xfe:   // INC
+            case 0xce: case 0xde:   // DEC
+            case 0x2d: case 0x3d: case 0x39:    // AND
+            case 0x0d: case 0x1d: case 0x19:    // ORA
+            case 0x4d: case 0x5d: case 0x59:    // EOR
                 return 3;
             default: // Error: instruction not implemented - stay stuck
                 printf("ERROR: get_size() not implemented\n");

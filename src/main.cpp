@@ -8,5 +8,5 @@ using std::endl;
 
 int main() {
     Processor proc;
-    proc.exec_n_inst(4);
+    // proc.exec_n_inst(4);
 }
