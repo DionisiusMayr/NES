@@ -3,6 +3,7 @@
 
 #include <cstdio>
 #include <string.h>
+#include "Opcodes.cpp"
 #include "utility.cpp"
 
 struct Memory {
@@ -17,10 +18,15 @@ struct Memory {
 
     // TODO: Overload [] operator.
 
-    void print_mem_interval(int a, int b) const {
+    void print_mem_interval(int a, int b, bool complete_mode) const {
         printf("--------------------------\n");
-        for (int i = a; i < b; ++i)
-            printf("|$%04d| %s|\n", i, dec_hex_bin(at[i]).c_str());
+        for (int i = a; i <= b; ++i) {
+            printf("|$%04x| %s| ", i, dec_hex_bin(at[i]).c_str());
+            if (complete_mode)
+                opc::print_inst(Instruction(at[i]));
+            printf("\n");
+        }
+
         printf("--------------------------\n");
     }
 };

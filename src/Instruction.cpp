@@ -11,6 +11,8 @@ struct Instruction {
         opc = byte1 = byte2 = 0;
     }
 
+    Instruction(uint8_t opcode) : opc(opcode), byte1(0), byte2(0) {}
+
     uint8_t get_size() const {
         switch(opc) {
             case 0x00:
@@ -33,6 +35,8 @@ struct Instruction {
             case 0xc8:  // INY
             case 0xca:  // DEX
             case 0x88:  // DEY
+            case 0x40:  // RTI
+            case 0x60:  // RTS
                 return 1;
             case 0x69: case 0x65: case 0x75: case 0x61: case 0x71:  // ADC
             case 0x06: case 0x16:   // ASL
@@ -47,6 +51,16 @@ struct Instruction {
             case 0x29: case 0x25: case 0x35: case 0x21: case 0x31:  // AND
             case 0x09: case 0x05: case 0x15: case 0x01: case 0x11:  // ORA
             case 0x49: case 0x45: case 0x55: case 0x41: case 0x51:  // EOR
+            case 0x30:  // BMI
+            case 0x10:  // BPL
+            case 0x90:  // BCC
+            case 0xb0:  // BCS
+            case 0xf0:  // BEQ
+            case 0xd0:  // BNE
+            case 0x50:  // BVC
+            case 0x70:  // BVS
+            case 0x24:  // BIT
+            case 0xc9: case 0xc5: case 0xd5: case 0xc1: case 0xd1:  // CMP
                 return 2;
             case 0xad: case 0xbd: case 0xb9:    // LDA
             case 0x8d: case 0x9d: case 0x99:    // STA
@@ -59,6 +73,10 @@ struct Instruction {
             case 0x2d: case 0x3d: case 0x39:    // AND
             case 0x0d: case 0x1d: case 0x19:    // ORA
             case 0x4d: case 0x5d: case 0x59:    // EOR
+            case 0x4c: case 0x6c:  // JMP
+            case 0x20:  // JSR
+            case 0x2c:  // BIT
+            case 0xcd: case 0xdd: case 0xd9:  // CMP
                 return 3;
             default: // Error: instruction not implemented - stay stuck
                 printf("ERROR: get_size() not implemented\n");

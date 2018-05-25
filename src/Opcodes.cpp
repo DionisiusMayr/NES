@@ -1,8 +1,12 @@
+#ifndef OPCODES_CPP_
+#define OPCODES_CPP_
+
 #include <cstdint>
 #include <cstdio>
 #include "Instruction.cpp"
 
-#define _print_inst(opcode, s) printf("0x%02x\t%s\n", opcode, s); break;
+// #define _print_inst(opcode, s) printf("0x%02x\t%s", opcode, s); break;
+#define _print_inst(opcode, s) printf("%s", s); break;
 
 namespace opc {
     void print_inst(Instruction const inst) {
@@ -17,32 +21,42 @@ namespace opc {
             case 0x09: _print_inst(opc, "ORA #oper")
             case 0x0a: _print_inst(opc, "ASL A")
             case 0x0d: _print_inst(opc, "ORA oper")
+            case 0x10: _print_inst(opc, "BPL oper")
             case 0x11: _print_inst(opc, "ORA (oper),Y")
             case 0x15: _print_inst(opc, "ORA oper,X")
             case 0x18: _print_inst(opc, "CLC")
             case 0x19: _print_inst(opc, "ORA oper,Y")
             case 0x1d: _print_inst(opc, "ORA oper,X")
+            case 0x20: _print_inst(opc, "JSR oper")
             case 0x21: _print_inst(opc, "AND (oper,X)")
+            case 0x24: _print_inst(opc, "BIT oper")
             case 0x25: _print_inst(opc, "AND oper")
             case 0x28: _print_inst(opc, "PLP")
             case 0x29: _print_inst(opc, "AND #oper")
+            case 0x2c: _print_inst(opc, "BIT oper")
             case 0x2d: _print_inst(opc, "AND oper")
+            case 0x30: _print_inst(opc, "BMI oper")
             case 0x31: _print_inst(opc, "AND (oper),Y")
             case 0x35: _print_inst(opc, "AND oper,X")
             case 0x39: _print_inst(opc, "AND oper,Y")
             case 0x3d: _print_inst(opc, "AND oper,X")
+            case 0x40: _print_inst(opc, "RTI")
             case 0x41: _print_inst(opc, "EOR (oper,X)")
             case 0x45: _print_inst(opc, "EOR oper")
             case 0x48: _print_inst(opc, "PHA")
             case 0x49: _print_inst(opc, "EOR #oper")
+            case 0x4c: _print_inst(opc, "JMP oper")
             case 0x4d: _print_inst(opc, "EOR oper")
             case 0x51: _print_inst(opc, "EOR (oper),Y")
             case 0x55: _print_inst(opc, "EOR oper,X")
             case 0x58: _print_inst(opc, "CLI")
             case 0x59: _print_inst(opc, "EOR oper,Y")
             case 0x5d: _print_inst(opc, "EOR oper,X")
+            case 0x60: _print_inst(opc, "RTS")
             case 0x68: _print_inst(opc, "PLA")
             case 0x69: _print_inst(opc, "ADC #oper")
+            case 0x6c: _print_inst(opc, "JMP (oper)")
+            case 0x70: _print_inst(opc, "BVS oper")
             case 0x81: _print_inst(opc, "STA (oper,X)")
             case 0x84: _print_inst(opc, "STY oper")
             case 0x85: _print_inst(opc, "STA oper")
@@ -52,6 +66,7 @@ namespace opc {
             case 0x8c: _print_inst(opc, "STY oper")
             case 0x8d: _print_inst(opc, "STA oper")
             case 0x8e: _print_inst(opc, "STX oper")
+            case 0x90: _print_inst(opc, "BCC oper")
             case 0x91: _print_inst(opc, "STA (oper),Y")
             case 0x94: _print_inst(opc, "STY oper,X")
             case 0x95: _print_inst(opc, "STA oper,X")
@@ -72,6 +87,7 @@ namespace opc {
             case 0xac: _print_inst(opc, "LDY oper")
             case 0xad: _print_inst(opc, "LDA oper")
             case 0xae: _print_inst(opc, "LDX oper")
+            case 0xb0: _print_inst(opc, "BCS oper")
             case 0xb1: _print_inst(opc, "LDA (oper),Y")
             case 0xb4: _print_inst(opc, "LDY oper,X")
             case 0xb5: _print_inst(opc, "LDA oper,X")
@@ -82,20 +98,33 @@ namespace opc {
             case 0xbc: _print_inst(opc, "LDY oper,X")
             case 0xbd: _print_inst(opc, "LDA oper,X")
             case 0xbe: _print_inst(opc, "LDX oper,Y")
+            case 0xc1: _print_inst(opc, "CMP (oper,X)")
+            case 0xc5: _print_inst(opc, "CMP oper")
             case 0xc6: _print_inst(opc, "DEC oper")
             case 0xc8: _print_inst(opc, "INY")
+            case 0xc9: _print_inst(opc, "CMP #oper")
             case 0xca: _print_inst(opc, "DEX")
+            case 0xcd: _print_inst(opc, "CMP oper")
             case 0xce: _print_inst(opc, "DEC oper")
+            case 0xd0: _print_inst(opc, "BNE oper")
+            case 0xd1: _print_inst(opc, "CMP (oper),Y")
+            case 0xd5: _print_inst(opc, "CMP oper,X")
             case 0xd6: _print_inst(opc, "DEC oper,X")
             case 0xd8: _print_inst(opc, "CLD")
+            case 0xd9: _print_inst(opc, "CMP oper,Y")
+            case 0xdd: _print_inst(opc, "CMP oper,X")
             case 0xde: _print_inst(opc, "DEC oper,X")
             case 0xe6: _print_inst(opc, "INC oper")
             case 0xe8: _print_inst(opc, "INX")
             case 0xee: _print_inst(opc, "INC oper")
+            case 0xf0: _print_inst(opc, "BEQ oper")
             case 0xf6: _print_inst(opc, "INC oper,X")
             case 0xfe: _print_inst(opc, "INC oper,X")
+            case 0x50: _print_inst(opc, "BVC oper")
 
-            default: printf("UNKNOW OPCODE\n");
+            default: printf("UNKNOW OPCODE");
         }
     }
 }
+
+#endif

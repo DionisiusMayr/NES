@@ -15,21 +15,22 @@ using std::endl;
 struct Registers {
     uint8_t a;      // Accumulator
     uint8_t x, y;   // Indexes
-    uint16_t pc;    // Program counter
     uint8_t s;      // Stack pointer
+    uint16_t pc;    // Program counter
     std::bitset<8> p; //Status register
 
-    Registers() {
-        a = x = y = pc = s = 0;
+    Registers(uint8_t stack, uint16_t starting_pc) : a(0), x(0), y(0), s(stack), pc(starting_pc) {
         _unset_register(p);
     }
 
     void print_regs() const {
-        cout << "-------d---h------b----------------d---h------b----" << endl;
-        cout << "|a:  " << dec_hex_bin(a) << "   |   pc: " << dec_hex_bin(pc)<< "|" << endl;
-        cout << "|x:  " << dec_hex_bin(x) << "   |   s:  " << dec_hex_bin(s) << "|" << endl;
-        cout << "|y:  " << dec_hex_bin(y) << "   |   p:  " << dec_hex_bin(p.to_ulong()) << "|" << endl;
-        cout << "------------------------------------------nv bdizc-" << endl;
+        uint8_t aux = pc >> 8;
+        cout << "-------d---h------b------------------d---h------b----" << endl;
+        cout << "|a:  " << dec_hex_bin(a) << "   |   pc_h: " << dec_hex_bin(aux)<< "|" << endl;
+        cout << "|x:  " << dec_hex_bin(x) << "   |   pc_l: " << dec_hex_bin(pc) << "|" << endl;
+        cout << "|y:  " << dec_hex_bin(y) << "   |   s:    " << dec_hex_bin(s) << "|" << endl;
+        cout << "|                        |   p:    " << dec_hex_bin(p.to_ulong()) << "|" << endl;
+        cout << "--------------------------------------------nv bdizc-" << endl;
     }
 };
 

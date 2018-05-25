@@ -36,73 +36,108 @@ private:
             /* LDA */
             case 0xa9:  // LDA #oper
                 r.a = op1;
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xa5:  // LDA oper
                 r.a = m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xb5:  // LDA oper,X
                 r.a = m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xad:  // LDA oper
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.a = m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xbd:  // LDA oper,X
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.a = m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xb9:  // LDA oper,Y
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.a = m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xa1:  // LDA (oper,X)
-                // TODO: implement this
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a = m.at[m.at[op1 + r.x]];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xb1:  // LDA (oper),Y
-                // TODO: implement this
+                addr = ((uint16_t)op1 << 8) | op2;
+                r.a = m.at[m.at[op1] + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
 
-            /* LDX */
+                /* LDX */
             case 0xa2:  // LDX #oper
                 r.x = op1;
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xa6:  // LDX oper
                 r.x = m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xb6:  // LDX oper,Y
                 r.x = m.at[op1 + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xae:  // LDX oper
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.x = m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xbe:  // LDX oper,Y
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.x = m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
 
-            /* LDY */
+                /* LDY */
             case 0xa0:  // LDY #oper
                 r.y = op1;
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xa4:  // LDY oper
                 r.y = m.at[op1];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xb4:  // LDY oper,X
                 r.y = m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xac:  // LDY oper
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.y = m.at[addr];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
             case 0xbc:  // LDY oper,X
                 addr = ((uint16_t)op1 << 8) | op2;
                 r.y = m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(r.a);
+                r.p[ZERO]     = _zero(r.a);
                 break;
         }
-
-        r.p[NEGATIVE] = _sign(r.a);
-        r.p[ZERO]     = _zero(r.a);
     }
 
     void sta() {
@@ -131,10 +166,10 @@ private:
                 m.at[addr + r.y] = r.a;
                 break;
             case 0x81:  // STA (oper,X)
-                // TODO: implement this
+                m.at[m.at[op1 + r.x]] = r.a;
                 break;
             case 0x91:  // STA (oper),Y
-                // TODO: implement this
+                m.at[m.at[op1] + r.y] = r.a;
                 break;
 
             /* STX */
@@ -470,7 +505,6 @@ private:
                 r.p[ZERO]     = _zero(r.a);
                 break;
         }
-
     }
 
     void data_processing() {
@@ -513,12 +547,135 @@ private:
         }
     }
 
-    void execute() {
+    void comp_branch() {
+        uint8_t op1 = instr.byte1;
+        uint8_t op2 = instr.byte2;
+        int16_t addr;
+        uint8_t aux;
+        int8_t signed_op1 = 0 | op1;   // TODO: not sure if this is necessary
 
+        switch (instr.opc) {
+            case 0x30:  // BMI oper
+                if (r.p[NEGATIVE] == 1)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0x10:  // BPL oper
+                if (r.p[NEGATIVE] == 0)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0x90:  // BCC oper
+                if (r.p[CARRY] == 0)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0xb0:  // BCS oper
+                if (r.p[CARRY] == 1)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0xf0:  // BEQ oper
+                if (r.p[ZERO] == 1)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0xd0:  // BNE oper
+                if (r.p[ZERO] == 0)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0x50:  // BVC oper
+                if (r.p[OVERFLOW] == 0)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0x70:  // BVS oper
+                if (r.p[OVERFLOW] == 1)
+                    r.pc += signed_op1 - 2;
+                break;
+            case 0x4c:  // JMP oper
+                r.pc = op1;
+                break;
+            case 0x6c:  // JMP (oper)
+                // TODO: implement this
+                break;
+            case 0x20:  // JSR oper
+                // TODO: implement this
+                break;
+            case 0x40:  // RTI
+                // TODO: implement this
+                break;
+            case 0x60:  // RTS
+                // TODO: implement this
+                break;
+            case 0x24:  // BIT oper
+                aux = m.at[op1];
+                r.p[NEGATIVE] = aux & 0b10000000 ? 1 : 0;
+                r.p[OVERFLOW] = aux & 0b01000000 ? 1 : 0;
+                r.p[ZERO]     = aux & r.a ? 1 : 0;
+                break;
+            case 0x2c:  // BIT oper
+                addr = ((uint16_t)op1 << 8) | op2;
+                aux = m.at[addr];
+                r.p[NEGATIVE] = aux & 0b10000000 ? 1 : 0;
+                r.p[OVERFLOW] = aux & 0b01000000 ? 1 : 0;
+                r.p[ZERO]     = aux & r.a ? 1 : 0;
+                break;
+            case 0xc9:  // CMP #oper
+                aux = r.a - op1;
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= op1;
+                break;
+            case 0xc5:  // CMP oper
+                aux = r.a - m.at[op1];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[op1];
+                break;
+            case 0xd5:  // CMP oper,X
+                aux = r.a - m.at[op1 + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[op1 + r.x];
+                break;
+            case 0xcd:  // CMP oper
+                addr = ((uint16_t)0x0100) | r.s;
+                aux = r.a - m.at[addr];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[addr];
+                break;
+            case 0xdd:  // CMP oper,X
+                addr = ((uint16_t)0x0100) | r.s;
+                aux = r.a - m.at[addr + r.x];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[addr + r.x];
+                break;
+            case 0xd9:  // CMP oper,Y
+                addr = ((uint16_t)0x0100) | r.s;
+                aux = r.a - m.at[addr + r.y];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[addr + r.y];
+                break;
+            case 0xc1:  // CMP (oper,X)
+                aux = r.a - m.at[m.at[op1 + r.x]];
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[m.at[op1 + r.x]];
+                break;
+            case 0xd1:  // CMP (oper),Y
+                aux = r.a - m.at[m.at[op1] + r.y];    // TODO: check all of those offsets
+                printf("R.A: %d  M.AT: %d subtraction: %d\n", r.a, m.at[m.at[op1] + r.y], aux);
+                r.p[NEGATIVE] = _sign(aux);
+                r.p[ZERO]     = _zero(aux)
+                r.p[CARRY]    = r.a >= m.at[m.at[op1] + r.y];
+                break;
+        // TODO: implement the CPX and CPY
+        }
+    }
+
+    void execute() {
         data_transfers();
         stack_operations();
         data_processing();
-
+        comp_branch();
     }
 
     void read_binary_program(const char * filename) {
@@ -533,19 +690,76 @@ private:
     }
 
 public:
-    Processor() : r(), m(MEM_SIZE) {
-        read_binary_program(PROGRAM);
+    Processor(uint8_t stack, uint16_t starting_pc) : 
+            r(stack, starting_pc),
+            m(MEM_SIZE) {
+        // read_binary_program(PROGRAM);
 
-        m.at[0] = 0x69;
-        m.at[1] = 0xc0;
-        m.at[2] = 0xfe;
-        m.at[3] = 0x01;
-        m.at[4] = 0x0a;
-        m.at[5] = 0x0a;
-        m.at[6] = 0x0a;
-        // m.at[2] = 0x29;
-        // m.at[3] = 0x00;
-        // m.print_mem_interval(0,5);
+        // Information about the array
+        m.at[0x0000] = 0x10;    // Starting addres of the array (low)
+        m.at[0x0001] = 0x00;    // Starting addres of the array (high)
+        m.at[0x0002] = 0xaa;    // Flag (exchanged?)
+        // m.at[0x0003] = 0x00;
+        // m.at[0x0004] = 0x00;
+        // m.at[0x0005] = 0x00;
+        // m.at[0x0006] = 0x00;
+        // m.at[0x0007] = 0x00;
+        m.print_mem_interval(0x0000, 0x0002, false);
+
+        // Array to be sorted
+        m.at[0x0010] = 0x06;    // First byte is the length of the list
+        m.at[0x0011] = 0x04;
+        m.at[0x0012] = 0x07;
+        m.at[0x0013] = 0x01;
+        m.at[0x0014] = 0x02;
+        m.at[0x0015] = 0x01;
+        m.at[0x0016] = 0x03;
+        m.print_mem_interval(0x0010, 0x0016, false);
+
+        // Program
+        m.at[0x8000] = 0xa0;    // LDY #0       ; _start: Clear Y
+        m.at[0x8001] = 0x00;
+        m.at[0x8002] = 0x84;    // STY $2       ; Flag <- FALSE
+        m.at[0x8003] = 0x02;
+        m.at[0x8004] = 0xb1;    // LDA ($00),Y  ; Load qty of elements in array
+        m.at[0x8005] = 0x00;
+        m.at[0x8006] = 0xaa;    // TAX          ; Store qty in X
+        m.at[0x8007] = 0xc8;    // INY          ; Point to the next byte
+        m.at[0x8008] = 0xca;    // DEX          ; One element less
+        m.at[0x8009] = 0xb1;    // LDA ($00),Y  ; _next: Load the y'th element
+        m.at[0x800a] = 0x00;
+        m.at[0x800b] = 0xc8;    // INY
+        m.at[0x800c] = 0xd1;    // CMP ($00),Y  ; Compare with next element
+        m.at[0x800d] = 0x00;
+        m.at[0x800e] = 0x90;    // BCC _check   ; Smaller?
+        m.at[0x800f] = 0x12;
+        m.at[0x8010] = 0xf0;    // BEQ _check   ; Equal?
+        m.at[0x8011] = 0x10;
+        m.at[0x8012] = 0x48;    // PHA          ; Bigger! Need to exchange
+        m.at[0x8013] = 0xb1;    // LDA ($00),Y  ; Get the next element
+        m.at[0x8014] = 0x00;
+        m.at[0x8015] = 0x88;    // DEY          ; Point to small ele position
+        m.at[0x8016] = 0x91;    // STA ($00),Y  ; Store small ele correctly
+        m.at[0x8017] = 0x00;
+        m.at[0x8018] = 0x68;    // PLA          ; Get the bigger ele from stack
+        m.at[0x8019] = 0xc8;    // INY          ; Poing to big ele position
+        m.at[0x801a] = 0x91;    // STA ($00),Y  ; Store big ele correctly
+        m.at[0x801b] = 0x00;
+        m.at[0x801c] = 0xa9;    // LDA #$FF     ; A <- 0xFF
+        m.at[0x801d] = 0xff;
+        m.at[0x801e] = 0x85;    // STA $2       ; Flag <- TRUE
+        m.at[0x801f] = 0x02;
+        m.at[0x8020] = 0xca;    // DEX          ; _check:
+        m.at[0x8021] = 0xd0;    // BNE _next    ;
+        m.at[0x8022] = 0xe8;
+        m.at[0x8023] = 0x24;    // BIT $2       ; Swapped anything?
+        m.at[0x8024] = 0x02;
+        m.at[0x8025] = 0x30;    // BMI _start   ; If yes, traverse once more
+        m.at[0x8026] = 0xdb;
+        // TODO: implement RTS
+        m.at[0x8027] = 0x00;    // RTS          ; End of function!
+        m.at[0x8028] = 0x00;    // 
+        m.print_mem_interval(0x8000, 0x8010, true);
     }
 
     void exec_n_inst(size_t const qty) {
@@ -553,8 +767,11 @@ public:
             fetch();
             printf("\n");
             opc::print_inst(instr);
+            printf("\n");
             execute();
             r.print_regs();
+            m.print_mem_interval(0x0011, 0x0016, false);
+            m.print_mem_interval(0x0002, 0x0002, false);
         }
     }
 };
