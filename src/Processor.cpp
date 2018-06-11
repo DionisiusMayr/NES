@@ -518,7 +518,7 @@ private:
         switch (instr.opc) {
             int int_res;
             case 0x0a:  // ASL A
-                r.p[CARRY]    = r.a && 0x80;
+                r.p[CARRY]    = r.a & 0x80;
                 r.a = r.a << 1;
                 r.p[NEGATIVE] = _sign(r.a);
                 r.p[ZERO]     = _zero(r.a);
