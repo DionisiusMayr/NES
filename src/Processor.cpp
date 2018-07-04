@@ -535,7 +535,6 @@ private:
                 r.p[NEGATIVE] = _sign(r.a);
                 r.p[ZERO]     = _zero(r.a);
                 r.p[CARRY]    = _carry(int_res);
-                // TODO: implement correct overflow flag
                 r.p[OVERFLOW] = r.p[CARRY] ^ r.p[NEGATIVE];
                 break;
             case 0xb8:  // CLV
@@ -552,7 +551,7 @@ private:
         uint8_t op2 = instr.byte2;
         int16_t addr;
         uint8_t aux;
-        int8_t signed_op1 = 0 | op1;   // TODO: not sure if this is necessary
+        int8_t signed_op1 = 0 | op1;
 
         switch (instr.opc) {
             case 0x30:  // BMI oper
@@ -591,16 +590,12 @@ private:
                 r.pc = op1;
                 break;
             case 0x6c:  // JMP (oper)
-                // TODO: implement this
                 break;
             case 0x20:  // JSR oper
-                // TODO: implement this
                 break;
             case 0x40:  // RTI
-                // TODO: implement this
                 break;
             case 0x60:  // RTS
-                // TODO: implement this
                 break;
             case 0x24:  // BIT oper
                 aux = m.at[op1];
@@ -661,13 +656,12 @@ private:
                 r.p[CARRY]    = r.a >= m.at[m.at[op1 + r.x]];
                 break;
             case 0xd1:  // CMP (oper),Y
-                aux = r.a - m.at[m.at[op1] + r.y];    // TODO: check all of those offsets
-                printf("R.A: %d  M.AT: %d subtraction: %d\n", r.a, m.at[m.at[op1] + r.y], aux);
+                aux = r.a - m.at[m.at[op1] + r.y];
+                // printf("R.A: %d  M.AT: %d subtraction: %d\n", r.a, m.at[m.at[op1] + r.y], aux);
                 r.p[NEGATIVE] = _sign(aux);
                 r.p[ZERO]     = _zero(aux)
                 r.p[CARRY]    = r.a >= m.at[m.at[op1] + r.y];
                 break;
-        // TODO: implement the CPX and CPY
         }
     }
 
@@ -696,15 +690,15 @@ public:
         // read_binary_program(PROGRAM);
 
         // Information about the array
-        m.at[0x0000] = 0x10;    // Starting addres of the array (low)
-        m.at[0x0001] = 0x00;    // Starting addres of the array (high)
-        m.at[0x0002] = 0xaa;    // Flag (exchanged?)
+        m.at[0x0005] = 0x10;    // Starting addres of the array (low)
+        m.at[0x0006] = 0x00;    // Starting addres of the array (high)
+        m.at[0x0007] = 0xaa;    // Flag (exchanged?)
         // m.at[0x0003] = 0x00;
         // m.at[0x0004] = 0x00;
         // m.at[0x0005] = 0x00;
         // m.at[0x0006] = 0x00;
         // m.at[0x0007] = 0x00;
-        m.print_mem_interval(0x0000, 0x0002, false);
+        m.print_mem_interval(0x0005, 0x0007, false);
 
         // Array to be sorted
         m.at[0x0010] = 0x06;    // First byte is the length of the list
@@ -719,47 +713,46 @@ public:
         // Program
         m.at[0x8000] = 0xa0;    // LDY #0       ; _start: Clear Y
         m.at[0x8001] = 0x00;
-        m.at[0x8002] = 0x84;    // STY $2       ; Flag <- FALSE
-        m.at[0x8003] = 0x02;
-        m.at[0x8004] = 0xb1;    // LDA ($00),Y  ; Load qty of elements in array
-        m.at[0x8005] = 0x00;
+        m.at[0x8002] = 0x84;    // STY $7       ; Flag <- FALSE
+        m.at[0x8003] = 0x07;
+        m.at[0x8004] = 0xb1;    // LDA ($05),Y  ; Load qty of elements in array
+        m.at[0x8005] = 0x05;
         m.at[0x8006] = 0xaa;    // TAX          ; Store qty in X
         m.at[0x8007] = 0xc8;    // INY          ; Point to the next byte
         m.at[0x8008] = 0xca;    // DEX          ; One element less
-        m.at[0x8009] = 0xb1;    // LDA ($00),Y  ; _next: Load the y'th element
-        m.at[0x800a] = 0x00;
+        m.at[0x8009] = 0xb1;    // LDA ($05),Y  ; _next: Load the y'th element
+        m.at[0x800a] = 0x05;
         m.at[0x800b] = 0xc8;    // INY
-        m.at[0x800c] = 0xd1;    // CMP ($00),Y  ; Compare with next element
-        m.at[0x800d] = 0x00;
+        m.at[0x800c] = 0xd1;    // CMP ($05),Y  ; Compare with next element
+        m.at[0x800d] = 0x05;
         m.at[0x800e] = 0x90;    // BCC _check   ; Smaller?
         m.at[0x800f] = 0x12;
         m.at[0x8010] = 0xf0;    // BEQ _check   ; Equal?
         m.at[0x8011] = 0x10;
         m.at[0x8012] = 0x48;    // PHA          ; Bigger! Need to exchange
-        m.at[0x8013] = 0xb1;    // LDA ($00),Y  ; Get the next element
-        m.at[0x8014] = 0x00;
+        m.at[0x8013] = 0xb1;    // LDA ($05),Y  ; Get the next element
+        m.at[0x8014] = 0x05;
         m.at[0x8015] = 0x88;    // DEY          ; Point to small ele position
-        m.at[0x8016] = 0x91;    // STA ($00),Y  ; Store small ele correctly
-        m.at[0x8017] = 0x00;
+        m.at[0x8016] = 0x91;    // STA ($05),Y  ; Store small ele correctly
+        m.at[0x8017] = 0x05;
         m.at[0x8018] = 0x68;    // PLA          ; Get the bigger ele from stack
         m.at[0x8019] = 0xc8;    // INY          ; Poing to big ele position
-        m.at[0x801a] = 0x91;    // STA ($00),Y  ; Store big ele correctly
-        m.at[0x801b] = 0x00;
+        m.at[0x801a] = 0x91;    // STA ($05),Y  ; Store big ele correctly
+        m.at[0x801b] = 0x05;
         m.at[0x801c] = 0xa9;    // LDA #$FF     ; A <- 0xFF
         m.at[0x801d] = 0xff;
-        m.at[0x801e] = 0x85;    // STA $2       ; Flag <- TRUE
-        m.at[0x801f] = 0x02;
+        m.at[0x801e] = 0x85;    // STA $7       ; Flag <- TRUE
+        m.at[0x801f] = 0x07;
         m.at[0x8020] = 0xca;    // DEX          ; _check:
         m.at[0x8021] = 0xd0;    // BNE _next    ;
         m.at[0x8022] = 0xe8;
-        m.at[0x8023] = 0x24;    // BIT $2       ; Swapped anything?
-        m.at[0x8024] = 0x02;
+        m.at[0x8023] = 0x24;    // BIT $7       ; Swapped anything?
+        m.at[0x8024] = 0x07;
         m.at[0x8025] = 0x30;    // BMI _start   ; If yes, traverse once more
         m.at[0x8026] = 0xdb;
-        // TODO: implement RTS
         m.at[0x8027] = 0x00;    // RTS          ; End of function!
         m.at[0x8028] = 0x00;    // 
-        m.print_mem_interval(0x8000, 0x8010, true);
+        m.print_mem_interval(0x8000, 0x8027, true);
     }
 
     void exec_n_inst(size_t const qty) {
@@ -770,8 +763,8 @@ public:
             printf("\n");
             execute();
             r.print_regs();
-            m.print_mem_interval(0x0011, 0x0016, false);
-            m.print_mem_interval(0x0002, 0x0002, false);
+            m.print_mem_interval(0x0010, 0x0016, false);
+            m.print_mem_interval(0x0007, 0x0007, false);
         }
     }
 };

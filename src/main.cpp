@@ -8,7 +8,7 @@ using std::endl;
 
 int main() {
     int qty;
-    Processor proc(0x03, 0x8000);
+    Processor proc(0xff, 0x8000);
     while (std::cin >> qty)
         proc.exec_n_inst(qty);
 }
